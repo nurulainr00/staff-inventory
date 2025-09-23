@@ -1,0 +1,7 @@
+{
+  "name": "staff-inventory",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}

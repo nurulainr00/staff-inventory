@@ -1,0 +1,126 @@
+/* ===== FORM CONTAINER ===== */
+.form-container {
+  max-width: 450px;
+  margin: 40px auto;
+  padding: 30px;
+  background: #f7fafd;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ===== FORM TITLE ===== */
+.form-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* ===== INPUT FIELDS ===== */
+.form-container input[type="text"],
+.form-container input[type="number"],
+.form-container input[type="file"] {
+  width: 100%;
+  padding: 12px 14px;
+  margin: 10px 0;
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border 0.2s ease-in-out;
+  background-color: #fff;
+  color: #333; /* ✅ make text visible */
+}
+
+.form-container input:focus {
+  border-color: #3b82f6; /* blue-500 */
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+/* ===== BUTTONS ===== */
+.form-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.btn-primary {
+  flex: 1;
+  margin-right: 8px;
+  background: #3b82f6;
+  color: #fff;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+.btn-primary:hover {
+  background: #2563eb;
+}
+
+.btn-secondary {
+  flex: 1;
+  margin-left: 8px;
+  background: #6b7280; /* gray */
+  color: #fff;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+.btn-scan {
+  flex: 1;
+  margin-left: 8px;
+  background: #bec548; /* yellow */
+  color: #fff;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+.btn-secondary:hover {
+  background: #4b5563;
+}
+
+/* ===== UPLOAD SECTION ===== */
+.upload-section {
+  margin-top: 20px;
+  font-size: 14px;
+  color: #555;
+}
+
+.upload-section input[type="file"] {
+  margin-top: 8px;
+  border: none;
+  background: none;
+}
+
+/* ===== MESSAGES ===== */
+.message {
+  margin-top: 15px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #d32f2f; /* red for errors */
+}
+
+.message:contains("✅") {
+  color: #2e7d32; /* green for success */
+}
+
+.center-input {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+

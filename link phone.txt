@@ -1,0 +1,3 @@
+nak buka dekat phone
+PS C:\Users\farha\staff-inventory> ionic serve --external
+eg: External: http://192.168.35.160:8101

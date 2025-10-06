@@ -1,0 +1,163 @@
+scan can capture yeayy!!!!
+
+import React, { useState } from "react";
+import { db } from "../firebaseConfig";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  doc,
+  updateDoc,
+  getDoc,
+} from "firebase/firestore";
+import { BrowserMultiFormatReader } from "@zxing/library";
+
+const TakeOut: React.FC = () => {
+  const [itemData, setItemData] = useState<any>(null);
+  const [takeQty, setTakeQty] = useState<number>(0);
+  const [scanning, setScanning] = useState<boolean>(false);
+
+  // ✅ Scan barcode using webcam
+  const handleStartScan = async () => {
+    setScanning(true);
+    const codeReader = new BrowserMultiFormatReader();
+
+    try {
+      const videoInputDevices = await codeReader.listVideoInputDevices();
+      if (videoInputDevices.length === 0) {
+        alert("❌ No camera found");
+        setScanning(false);
+        return;
+      }
+
+      const selectedDeviceId = videoInputDevices[0].deviceId;
+
+      await codeReader.decodeFromVideoDevice(
+        selectedDeviceId,
+        "video",
+        async (result, error) => {
+          if (result) {
+            codeReader.reset();
+            setScanning(false);
+            handleFetchItem(result.getText()); // ✅ pass decoded barcode
+          }
+        }
+      );
+    } catch (err) {
+      console.error("Scan error:", err);
+      setScanning(false);
+    }
+  };
+
+  // ✅ Upload barcode image instead of scanning
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      const img = new Image();
+      img.src = URL.createObjectURL(file);
+
+      img.onload = async () => {
+        const codeReader = new BrowserMultiFormatReader();
+        try {
+          const result = await codeReader.decodeFromImage(img);
+          handleFetchItem(result.getText());
+        } catch (err) {
+          alert("❌ No barcode detected in image");
+        }
+      };
+    }
+  };
+
+  // ✅ Fetch Firestore item by `barcode` field
+const handleFetchItem = async (barcode: string) => {
+  console.log("🔍 Decoded barcode:", barcode);
+
+  try {
+    const docRef = doc(db, "inventory", barcode.trim()); // use barcode as doc ID
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      console.log("✅ Found Firestore doc:", docSnap.data());
+      setItemData({ id: docSnap.id, ...docSnap.data() });
+      setTakeQty(0);
+    } else {
+      console.warn("⚠️ No Firestore doc found for ID:", barcode);
+      alert("❌ Item not found in database (check if doc ID matches barcode).");
+      setItemData(null);
+    }
+  } catch (error) {
+    console.error("Error fetching item:", error);
+  }
+};
+
+
+  // ✅ Reduce stock safely with confirmation
+  const handleConfirm = async () => {
+    if (!itemData) return;
+    if (takeQty <= 0) {
+      alert("⚠ Please enter a valid quantity");
+      return;
+    }
+    if (takeQty > itemData.qty) {
+      alert("⚠ Not enough stock available");
+      return;
+    }
+
+    try {
+      const docRef = doc(db, "inventory", itemData.id);
+      await updateDoc(docRef, {
+        qty: itemData.qty - takeQty,
+      });
+      alert("✅ Stock updated successfully!");
+      setItemData(null);
+      setTakeQty(0);
+    } catch (error) {
+      console.error("Error updating stock:", error);
+    }
+  };
+
+  return (
+    <div className="p-4">
+      <h2 className="text-xl font-bold mb-4">📦 Take Out Item</h2>
+
+      <div className="space-x-2 mb-4">
+        <button
+          onClick={handleStartScan}
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+        >
+          Start Scanning
+        </button>
+
+        <input type="file" accept="image/*" onChange={handleImageUpload} />
+      </div>
+
+      {scanning && <video id="video" width="300" height="200" />}
+
+      {itemData && (
+        <div className="mt-4 p-4 border rounded shadow">
+          <h3 className="text-lg font-semibold">{itemData.item}</h3>
+          <p>Barcode: {itemData.barcode}</p>
+          <p>Current Qty: {itemData.qty}</p>
+
+          <input
+            type="number"
+            value={takeQty}
+            onChange={(e) => setTakeQty(Number(e.target.value))}
+            placeholder="Quantity to take out"
+            className="border p-2 w-full mt-2"
+          />
+
+          <button
+            onClick={handleConfirm}
+            className="bg-green-500 text-white px-4 py-2 mt-2 rounded"
+          >
+            ✅ Confirm Take Out
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default TakeOut;

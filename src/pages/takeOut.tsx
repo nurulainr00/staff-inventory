@@ -9,7 +9,6 @@ const TakeOut: React.FC = () => {
   const [takeQty, setTakeQty] = useState<number>(0);
   const [barcode, setBarcode] = useState<string>("");
   const [message, setMessage] = useState<string>("");
-  
 
   // ✅ Scan barcode using webcam
   const handleStartScan = async () => {
@@ -79,56 +78,31 @@ const TakeOut: React.FC = () => {
   };
 
   // ✅ Reduce stock
-const handleConfirm = async (e: React.FormEvent) => {
-  e.preventDefault();
-
-  try {
-    let currentItem = itemData;
-
-    // If user typed ID manually but didn't fetch yet → fetch it here
-    if (!currentItem && barcode.trim() !== "") {
-      const docRef = doc(db, "inventory", barcode.trim());
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        currentItem = { id: docSnap.id, ...docSnap.data() };
-      } else {
-        setMessage("❌ Item not found in database");
-        return;
-      }
-    }
-
-    if (!currentItem) {
-      setMessage("⚠️ Please enter or scan a valid item ID");
-      return;
-    }
+  const handleConfirm = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!itemData) return;
 
     if (takeQty <= 0) {
       setMessage("⚠️ Please enter a valid quantity");
       return;
     }
-    if (takeQty > currentItem.qty) {
+    if (takeQty > itemData.qty) {
       setMessage("⚠️ Not enough stock available");
       return;
     }
 
-    const newQty = currentItem.qty - takeQty;
-
-    const docRef = doc(db, "inventory", currentItem.id);
-    await updateDoc(docRef, {
-      qty: newQty,
-      lowStock: newQty <= 2, // ✅ auto-update lowStock
-    });
-
-    setMessage("✅ Stock updated successfully!");
-    setItemData(null);
-    setBarcode("");
-    setTakeQty(0);
-  } catch (error) {
-    console.error("Error updating stock:", error);
-    setMessage("⚠️ Error updating stock");
-  }
-};
-
+    try {
+      const docRef = doc(db, "inventory", itemData.id);
+      await updateDoc(docRef, { qty: itemData.qty - takeQty });
+      setMessage("✅ Stock updated successfully!");
+      setItemData(null);
+      setBarcode("");
+      setTakeQty(0);
+    } catch (error) {
+      console.error("Error updating stock:", error);
+      setMessage("⚠️ Error updating stock");
+    }
+  };
 
   const handleClear = () => {
     setItemData(null);
@@ -143,7 +117,7 @@ const handleConfirm = async (e: React.FormEvent) => {
         <img
           src="/assets/avant.jpg"
           alt="App Logo"
-          style={{ width: 100, marginTop: 20 }}
+          style={{ width: 60, marginTop: 20 }}
         />
       <h2 className="form-title">Take Out Inventory</h2>
 
@@ -153,7 +127,6 @@ const handleConfirm = async (e: React.FormEvent) => {
           placeholder="Scan/Enter Barcode"
           value={barcode}
           onChange={(e) => setBarcode(e.target.value)}
-          onBlur={() => handleFetchItem(barcode)} // ✅ fetch after typing ID
         />
 
         {itemData && (
@@ -195,10 +168,9 @@ const handleConfirm = async (e: React.FormEvent) => {
           Start Scanning
         </button>
         <p>or Upload Barcode Image</p>
+        <input type="file" accept="image/*" onChange={handleImageUpload} />
       </div>
-<div className="center-input">
-  <input type="file" accept="image/*" onChange={handleImageUpload} />
-</div>
+
       {message && <p className="message">{message}</p>}
       <video id="video" width="300" height="200" style={{ marginTop: "1rem" }} />
     </div>

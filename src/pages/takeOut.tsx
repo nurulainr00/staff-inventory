@@ -123,12 +123,17 @@ const TakeOut: React.FC = () => {
 
       <form onSubmit={handleConfirm}>
         <input
-          type="text"
-          placeholder="Scan/Enter Barcode"
-          value={barcode}
-          onChange={(e) => setBarcode(e.target.value)}
-        />
-
+  type="text"
+  placeholder="Scan/Enter Barcode"
+  value={barcode}
+  onChange={(e) => setBarcode(e.target.value)}
+  onKeyDown={(e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleFetchItem(barcode);
+    }
+  }}
+/>
         {itemData && (
           <>
             <input

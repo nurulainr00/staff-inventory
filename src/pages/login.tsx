@@ -89,7 +89,7 @@ const AuthPage: React.FC = () => {
           alt="App Logo"
           style={{ width: 120, marginTop: 40 }}
         />
-        <h1 style={{ marginTop: 20, fontWeight: "bold", color: "#ece9e9ff" }}>
+        <h1 style={{ marginTop: 20, fontWeight: "bold" }}>
           Smart Inventory App
         </h1>
 

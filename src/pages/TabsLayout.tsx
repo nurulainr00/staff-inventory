@@ -11,6 +11,7 @@ import BarcodeScannerPage from "./BarcodeScannerPage";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebaseConfig";
 
+
 const TabsLayout: React.FC = () => {
   const history = useHistory();
 

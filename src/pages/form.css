@@ -124,3 +124,19 @@
   margin-top: 1rem;
 }
 
+.dark-mode {
+  background-color: #000; /* Black background */
+  color: #fff; /* White text */
+  min-height: 100vh;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.dark-mode button {
+  background-color: #222;
+  color: #fff;
+  border: 1px solid #555;
+  padding: 10px 20px;
+  margin: 10px 0;
+  cursor: pointer;
+}

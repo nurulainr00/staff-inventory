@@ -12,6 +12,8 @@ import {
 import { warningOutline } from "ionicons/icons";
 import { db } from "../firebaseConfig";
 import { collection, onSnapshot, doc, updateDoc } from "firebase/firestore";
+import "./form.css";
+
 
 const LOW_STOCK_THRESHOLD = 4; // 🔹 You can change this
 const ITEMS_PER_PAGE = 5; // 🔹 Show 5 items per page
@@ -65,7 +67,7 @@ const InventoryPage: React.FC = () => {
           alt="App Logo"
           style={{ width: 100, marginTop: 20 }}
         />
-        <h1 style={{ marginTop: 10, fontWeight: "bold", color: "#ece9e9ff" }}>
+        <h1 style={{ marginTop: 10, fontWeight: "bold" }}>
           Smart Inventory App
         </h1>
 

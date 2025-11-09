@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { db } from "../firebaseConfig";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { BrowserMultiFormatReader } from "@zxing/library";
-import "./form.css"; // ✅ same styling used by Add Inventory
+import "./form.css";
 
 const TakeOut: React.FC = () => {
   const [itemData, setItemData] = useState<any>(null);
@@ -10,18 +10,27 @@ const TakeOut: React.FC = () => {
   const [barcode, setBarcode] = useState<string>("");
   const [message, setMessage] = useState<string>("");
 
-  // ✅ Scan barcode using webcam
+  // ✅ Scan barcode using webcam (with preference for back camera)
   const handleStartScan = async () => {
     const codeReader = new BrowserMultiFormatReader();
     try {
       const devices = await codeReader.listVideoInputDevices();
+
       if (devices.length === 0) {
         setMessage("❌ No camera found");
         return;
       }
 
+      // 🔄 Find back camera (or last one if label not available)
+      const backCamera =
+        devices.find((device) =>
+          device.label.toLowerCase().includes("back")
+        ) || devices[devices.length - 1];
+
+      setMessage("📸 Using back camera...");
+
       await codeReader.decodeFromVideoDevice(
-        devices[0].deviceId,
+        backCamera.deviceId,
         "video",
         async (result, error) => {
           if (result) {
@@ -33,7 +42,7 @@ const TakeOut: React.FC = () => {
       );
     } catch (err) {
       console.error("Scan error:", err);
-      setMessage("⚠️ Scan failed");
+      setMessage("⚠️ Scan failed. Please allow camera access.");
     }
   };
 
@@ -113,27 +122,27 @@ const TakeOut: React.FC = () => {
 
   return (
     <div className="form-container">
-      {/* Logo + Title */}
-        <img
-          src="/assets/avant.jpg"
-          alt="App Logo"
-          style={{ width: 60, marginTop: 20 }}
-        />
+      <img
+        src="/assets/avant.jpg"
+        alt="App Logo"
+        style={{ width: 60, marginTop: 20 }}
+      />
       <h2 className="form-title">Take Out Inventory</h2>
 
       <form onSubmit={handleConfirm}>
         <input
-  type="text"
-  placeholder="Scan/Enter Barcode"
-  value={barcode}
-  onChange={(e) => setBarcode(e.target.value)}
-  onKeyDown={(e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleFetchItem(barcode);
-    }
-  }}
-/>
+          type="text"
+          placeholder="Scan/Enter Barcode"
+          value={barcode}
+          onChange={(e) => setBarcode(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handleFetchItem(barcode);
+            }
+          }}
+        />
+
         {itemData && (
           <>
             <input
@@ -142,13 +151,7 @@ const TakeOut: React.FC = () => {
               disabled
               placeholder="Item Name"
             />
-
-            <input
-              type="text"
-              value={`${itemData.qty}`}
-              disabled
-            />
-
+            <input type="text" value={`${itemData.qty}`} disabled />
             <input
               type="number"
               placeholder="Quantity to take out"
@@ -170,14 +173,23 @@ const TakeOut: React.FC = () => {
 
       <div className="upload-section">
         <button onClick={handleStartScan} className="btn-scan">
-          Start Scanning
+          Start Scanning (Back Camera)
         </button>
         <p>or Upload Barcode Image</p>
         <input type="file" accept="image/*" onChange={handleImageUpload} />
       </div>
 
       {message && <p className="message">{message}</p>}
-      <video id="video" width="300" height="200" style={{ marginTop: "1rem" }} />
+
+      {/* ✅ playsinline is required for Safari mobile camera */}
+      <video
+        id="video"
+        width="300"
+        height="200"
+        playsInline
+        muted
+        style={{ marginTop: "1rem" }}
+      />
     </div>
   );
 };
